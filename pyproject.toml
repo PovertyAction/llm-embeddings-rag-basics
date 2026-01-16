@@ -1,5 +1,5 @@
 [project]
-name = "project-name"
+name = "llm-embeddings-rag"
 version = "0.1.0"
 description = "Project description"
 readme = "README.md"

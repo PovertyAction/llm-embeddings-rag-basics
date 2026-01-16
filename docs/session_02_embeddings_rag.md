@@ -274,7 +274,7 @@ This session gives you the technical foundation to build these applications.
 3. **Pattern is reusable**: Same approach works for many research applications
 4. **No model training needed**: This is prompt engineering + smart retrieval
 
----
+----
 
 ## Resources
 
