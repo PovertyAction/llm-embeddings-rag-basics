@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>readme</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="README_files/libs/clipboard/clipboard.min.js"></script>
+<script src="README_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="README_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="README_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="README_files/libs/quarto-html/popper.min.js"></script>
+<script src="README_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="README_files/libs/quarto-html/anchor.min.js"></script>
+<link href="README_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="README_files/libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="README_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="README_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="README_files/libs/bootstrap/bootstrap-9e3ffae467580fdb927a41352e75a2e0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+
+<section id="session-02-introduction-to-embeddings-rag-models" class="level1">
+<h1>Session 02 – Introduction to Embeddings &amp; RAG Models</h1>
+<section id="session-goal" class="level2">
+<h2 class="anchored" data-anchor-id="session-goal">Session goal</h2>
+<p>By the end of this session, you will be able to:</p>
+<ul>
+<li>understand what embeddings are and why they matter,</li>
+<li>understand what a RAG (Retrieval Augmented Generation) model is,</li>
+<li>recognize when to use embeddings vs.&nbsp;simple LLM calls,</li>
+<li>understand the architecture of knowledge-augmented applications.</li>
+</ul>
+<p>This session focuses on <strong>conceptual foundations for working with your own data</strong>.</p>
+<hr>
+</section>
+<section id="what-we-are-and-are-not-doing-today" class="level2">
+<h2 class="anchored" data-anchor-id="what-we-are-and-are-not-doing-today">What we are (and are not) doing today</h2>
+<section id="we-are-doing" class="level3">
+<h3 class="anchored" data-anchor-id="we-are-doing">We are doing</h3>
+<ul>
+<li>Understanding embeddings conceptually</li>
+<li>Learning the RAG architecture pattern</li>
+<li>Seeing practical examples of when these tools are useful</li>
+<li>Understanding the workflow from text to searchable knowledge</li>
+</ul>
+</section>
+<section id="we-are-not-doing" class="level3">
+<h3 class="anchored" data-anchor-id="we-are-not-doing">We are not doing</h3>
+<ul>
+<li>Building applications (that’s for later sessions)</li>
+<li>Writing code for qualitative coding or chatbots</li>
+<li>Working with vector databases</li>
+<li>Fine-tuning models</li>
+</ul>
+<p>Think of this session as <strong>understanding the theory before building</strong>.</p>
+<hr>
+</section>
+</section>
+<section id="prerequisites" class="level2">
+<h2 class="anchored" data-anchor-id="prerequisites">Prerequisites</h2>
+<p>Before starting this session, you should have completed Session 01:</p>
+<ul>
+<li>✅ Local Python environment configured</li>
+<li>✅ API key set up and working</li>
+<li>✅ Successfully run <code>01_test_connection.py</code></li>
+</ul>
+<hr>
+</section>
+<section id="big-picture-from-simple-llm-to-rag" class="level2">
+<h2 class="anchored" data-anchor-id="big-picture-from-simple-llm-to-rag">Big picture: from simple LLM to RAG</h2>
+<p>In Session 01, we learned:</p>
+<pre><code>User prompt → LLM → Response</code></pre>
+<p>In this session we understand a more powerful pattern:</p>
+<pre><code>User question 
+↓
+Search relevant documents (using embeddings)
+↓
+Build context-aware prompt
+↓
+LLM → Response based on YOUR data</code></pre>
+<p>This is the RAG pattern.</p>
+<hr>
+</section>
+<section id="part-1-what-are-embeddings" class="level2">
+<h2 class="anchored" data-anchor-id="part-1-what-are-embeddings">Part 1: What are embeddings?</h2>
+<section id="the-problem" class="level3">
+<h3 class="anchored" data-anchor-id="the-problem">The problem</h3>
+<p>LLMs can’t naturally “search” through thousands of documents. They need text converted into a format that allows mathematical comparison.</p>
+</section>
+<section id="the-solution-embeddings" class="level3">
+<h3 class="anchored" data-anchor-id="the-solution-embeddings">The solution: embeddings</h3>
+<p>An <strong>embedding</strong> is a numerical representation of text.</p>
+<ul>
+<li>Text → Vector of numbers (e.g., [0.2, -0.5, 0.8, …])</li>
+<li>Similar meanings → Similar vectors</li>
+<li>Different meanings → Distant vectors</li>
+</ul>
+</section>
+<section id="why-this-matters" class="level3">
+<h3 class="anchored" data-anchor-id="why-this-matters">Why this matters</h3>
+<p>With embeddings, you can:</p>
+<ul>
+<li>Find documents similar to a query</li>
+<li>Cluster related texts together</li>
+<li>Measure semantic similarity mathematically</li>
+<li>Search by meaning, not just keywords</li>
+</ul>
+</section>
+<section id="example-how-meaning-becomes-numbers" class="level3">
+<h3 class="anchored" data-anchor-id="example-how-meaning-becomes-numbers">Example: How meaning becomes numbers</h3>
+<pre><code>Text: "The survey was conducted in rural villages"
+↓
+Embedding: [0.023, -0.145, 0.892, ..., 0.334]
+(1536 numbers total)</code></pre>
+<pre><code>Similar text: "Data collection happened in countryside communities"
+↓
+Embedding: [0.019, -0.151, 0.887, ..., 0.329]
+(very similar numbers!)</code></pre>
+<pre><code>Different text: "The stock market crashed yesterday"
+↓
+Embedding: [0.876, 0.234, -0.445, ..., -0.123]
+(very different numbers)</code></pre>
+</section>
+<section id="key-insight" class="level3">
+<h3 class="anchored" data-anchor-id="key-insight">Key insight</h3>
+<p><strong>Embeddings capture semantic meaning, not just words.</strong></p>
+<ul>
+<li>“car” and “automobile” have similar embeddings</li>
+<li>“bank” (financial) and “bank” (river) have different embeddings</li>
+<li>Works across languages in multilingual models</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="part-2-what-is-a-rag-model" class="level2">
+<h2 class="anchored" data-anchor-id="part-2-what-is-a-rag-model">Part 2: What is a RAG model?</h2>
+<p><strong>RAG = Retrieval Augmented Generation</strong></p>
+<section id="the-fundamental-problem-rag-solves" class="level3">
+<h3 class="anchored" data-anchor-id="the-fundamental-problem-rag-solves">The fundamental problem RAG solves</h3>
+<p>LLMs have two limitations:</p>
+<ol type="1">
+<li><strong>Knowledge cutoff</strong>: They don’t know about events after training</li>
+<li><strong>No access to private data</strong>: They don’t know YOUR documents, reports, or internal knowledge</li>
+</ol>
+<p>RAG fixes both by connecting LLMs to external knowledge sources.</p>
+</section>
+<section id="the-three-steps-of-rag" class="level3">
+<h3 class="anchored" data-anchor-id="the-three-steps-of-rag">The three steps of RAG</h3>
+<section id="retrieval" class="level4">
+<h4 class="anchored" data-anchor-id="retrieval">1. Retrieval</h4>
+<p>Search your documents for relevant content</p>
+<ul>
+<li>Convert user question to embedding</li>
+<li>Find documents with similar embeddings</li>
+<li>Retrieve top-k most relevant passages</li>
+</ul>
+</section>
+<section id="augmentation" class="level4">
+<h4 class="anchored" data-anchor-id="augmentation">2. Augmentation</h4>
+<p>Add retrieved content to the prompt</p>
+<ul>
+<li>Build a context-aware prompt</li>
+<li>Include relevant documents as background</li>
+<li>Guide the LLM with specific information</li>
+</ul>
+</section>
+<section id="generation" class="level4">
+<h4 class="anchored" data-anchor-id="generation">3. Generation</h4>
+<p>LLM generates response</p>
+<ul>
+<li>Model has access to YOUR data</li>
+<li>Answers are grounded in retrieved documents</li>
+<li>Can cite specific sources</li>
+</ul>
+</section>
+</section>
+<section id="visual-representation" class="level3">
+<h3 class="anchored" data-anchor-id="visual-representation">Visual representation</h3>
+<pre><code>Your documents → Embeddings → Vector database
+                                    ↓
+User question → Embedding → Search similar → Top matches
+                                                  ↓
+                                    Build prompt with context
+                                                  ↓
+                                            LLM generates
+                                                  ↓
+                                          Grounded answer</code></pre>
+<hr>
+</section>
+</section>
+<section id="when-to-use-embeddings-vs.-simple-llm-calls" class="level2">
+<h2 class="anchored" data-anchor-id="when-to-use-embeddings-vs.-simple-llm-calls">When to use embeddings vs.&nbsp;simple LLM calls</h2>
+<section id="use-simple-llm-calls-when" class="level3">
+<h3 class="anchored" data-anchor-id="use-simple-llm-calls-when">Use simple LLM calls when:</h3>
+<ul>
+<li>Task is general (translation, summarization, writing)</li>
+<li>No specific knowledge base needed</li>
+<li>Instructions fit in the prompt</li>
+<li>One-off tasks</li>
+</ul>
+</section>
+<section id="use-embeddings-rag-when" class="level3">
+<h3 class="anchored" data-anchor-id="use-embeddings-rag-when">Use embeddings + RAG when:</h3>
+<ul>
+<li>Working with large document collections</li>
+<li>Need to reference specific internal knowledge</li>
+<li>Information changes frequently</li>
+<li>Want to cite sources</li>
+<li>Building knowledge base applications</li>
+</ul>
+</section>
+<section id="research-use-cases-for-rag" class="level3">
+<h3 class="anchored" data-anchor-id="research-use-cases-for-rag">Research use cases for RAG</h3>
+<ul>
+<li><strong>Qualitative analysis</strong>: Search similar interview responses</li>
+<li><strong>Literature review</strong>: Find relevant papers from your database</li>
+<li><strong>Project knowledge</strong>: Answer questions about past projects</li>
+<li><strong>Policy analysis</strong>: Search regulations and guidelines</li>
+<li><strong>Data documentation</strong>: Find relevant codebooks and data dictionaries</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="key-concepts-to-understand" class="level2">
+<h2 class="anchored" data-anchor-id="key-concepts-to-understand">Key concepts to understand</h2>
+<section id="embedding-models" class="level3">
+<h3 class="anchored" data-anchor-id="embedding-models">1. Embedding models</h3>
+<ul>
+<li>Separate from LLMs</li>
+<li>Specifically trained to create good vector representations</li>
+<li>Example: <code>text-embedding-3-small</code> from OpenAI</li>
+<li>Different models for different languages/domains</li>
+</ul>
+</section>
+<section id="vector-similarity" class="level3">
+<h3 class="anchored" data-anchor-id="vector-similarity">2. Vector similarity</h3>
+<ul>
+<li><strong>Cosine similarity</strong>: measures angle between vectors</li>
+<li>Score from -1 to 1 (higher = more similar)</li>
+<li>Used to rank document relevance</li>
+<li>0.8+ typically means very related content</li>
+</ul>
+</section>
+<section id="chunking-strategy" class="level3">
+<h3 class="anchored" data-anchor-id="chunking-strategy">3. Chunking strategy</h3>
+<p>Documents are split into smaller pieces:</p>
+<ul>
+<li>Each chunk gets embedded separately</li>
+<li>Balances between context and precision</li>
+<li>Typical size: 200-1000 words per chunk</li>
+<li>Must decide: semantic chunks vs.&nbsp;fixed-size chunks</li>
+</ul>
+</section>
+<section id="retrieval-quality" class="level3">
+<h3 class="anchored" data-anchor-id="retrieval-quality">4. Retrieval quality</h3>
+<p>The success of RAG depends on finding the RIGHT documents:</p>
+<ul>
+<li>Too few documents → miss relevant info</li>
+<li>Too many documents → confuse the LLM</li>
+<li>Sweet spot: typically 3-5 most relevant chunks</li>
+<li>Quality of retrieval &gt; quantity of documents</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="rag-vs.-other-approaches" class="level2">
+<h2 class="anchored" data-anchor-id="rag-vs.-other-approaches">RAG vs.&nbsp;other approaches</h2>
+<section id="rag-vs.-fine-tuning" class="level3">
+<h3 class="anchored" data-anchor-id="rag-vs.-fine-tuning">RAG vs.&nbsp;Fine-tuning</h3>
+<p><strong>Fine-tuning</strong>: Retrain the model on your data</p>
+<ul>
+<li>Pros: Model “learns” your domain</li>
+<li>Cons: Expensive, time-consuming, hard to update</li>
+</ul>
+<p><strong>RAG</strong>: Search your data at query time</p>
+<ul>
+<li>Pros: Easy to update, works with any LLM, transparent</li>
+<li>Cons: Depends on retrieval quality</li>
+</ul>
+</section>
+<section id="rag-vs.-long-context-windows" class="level3">
+<h3 class="anchored" data-anchor-id="rag-vs.-long-context-windows">RAG vs.&nbsp;Long context windows</h3>
+<p><strong>Long context</strong>: Put everything in the prompt</p>
+<ul>
+<li>Pros: Simple, no separate retrieval step</li>
+<li>Cons: Expensive, slower, may miss details in long contexts</li>
+</ul>
+<p><strong>RAG</strong>: Only retrieve relevant parts</p>
+<ul>
+<li>Pros: Efficient, scales to large datasets</li>
+<li>Cons: Requires embedding infrastructure</li>
+</ul>
+</section>
+<section id="when-to-use-each" class="level3">
+<h3 class="anchored" data-anchor-id="when-to-use-each">When to use each</h3>
+<ul>
+<li>Small, static knowledge base → Long context</li>
+<li>Large, changing knowledge base → RAG</li>
+<li>Need model to “speak” your domain → Fine-tuning</li>
+<li>Most research use cases → RAG</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="the-rag-workflow-in-practice" class="level2">
+<h2 class="anchored" data-anchor-id="the-rag-workflow-in-practice">The RAG workflow in practice</h2>
+<section id="one-time-setup" class="level3">
+<h3 class="anchored" data-anchor-id="one-time-setup">One-time setup</h3>
+<pre><code>1. Collect your documents
+2. Split into chunks
+3. Create embeddings for each chunk
+4. Store in searchable format
+   (can be as simple as a CSV with embeddings)</code></pre>
+</section>
+<section id="for-each-user-question" class="level3">
+<h3 class="anchored" data-anchor-id="for-each-user-question">For each user question</h3>
+<pre><code>1. Create embedding for the question
+2. Search for most similar document chunks
+3. Build prompt: question + relevant chunks
+4. Send to LLM
+5. Get grounded answer</code></pre>
+</section>
+<section id="cost-considerations" class="level3">
+<h3 class="anchored" data-anchor-id="cost-considerations">Cost considerations</h3>
+<ul>
+<li>Embedding creation: one-time cost</li>
+<li>Embedding search: very cheap (just math)</li>
+<li>LLM generation: same cost as before</li>
+<li><strong>Total</strong>: RAG adds minimal cost compared to value</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="what-makes-a-good-rag-system" class="level2">
+<h2 class="anchored" data-anchor-id="what-makes-a-good-rag-system">What makes a good RAG system?</h2>
+<section id="good-chunking" class="level3">
+<h3 class="anchored" data-anchor-id="good-chunking">1. Good chunking</h3>
+<ul>
+<li>Preserve semantic coherence</li>
+<li>Not too small (loses context)</li>
+<li>Not too large (loses precision)</li>
+</ul>
+</section>
+<section id="good-retrieval" class="level3">
+<h3 class="anchored" data-anchor-id="good-retrieval">2. Good retrieval</h3>
+<ul>
+<li>Accurate embeddings</li>
+<li>Relevant similarity threshold</li>
+<li>Consider metadata (date, source, author)</li>
+</ul>
+</section>
+<section id="good-prompt-engineering" class="level3">
+<h3 class="anchored" data-anchor-id="good-prompt-engineering">3. Good prompt engineering</h3>
+<ul>
+<li>Clear instructions for using context</li>
+<li>Explicit citation requirements</li>
+<li>Handling cases with no relevant documents</li>
+</ul>
+</section>
+<section id="evaluation" class="level3">
+<h3 class="anchored" data-anchor-id="evaluation">4. Evaluation</h3>
+<ul>
+<li>Are retrieved documents actually relevant?</li>
+<li>Does the answer use the documents correctly?</li>
+<li>Can users verify the sources?</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="common-patterns-youll-implement-later" class="level2">
+<h2 class="anchored" data-anchor-id="common-patterns-youll-implement-later">Common patterns you’ll implement later</h2>
+<section id="pattern-1-semantic-search" class="level3">
+<h3 class="anchored" data-anchor-id="pattern-1-semantic-search">Pattern 1: Semantic search</h3>
+<pre><code>User searches: "data quality issues"
+System finds documents about:
+- "survey accuracy problems"
+- "measurement error challenges"
+- "validation inconsistencies"</code></pre>
+</section>
+<section id="pattern-2-question-answering" class="level3">
+<h3 class="anchored" data-anchor-id="pattern-2-question-answering">Pattern 2: Question answering</h3>
+<pre><code>User asks: "What sampling method did Project X use?"
+System:
+1. Finds Project X documentation
+2. Locates sampling methodology section
+3. Generates answer with citation</code></pre>
+</section>
+<section id="pattern-3-theme-discovery" class="level3">
+<h3 class="anchored" data-anchor-id="pattern-3-theme-discovery">Pattern 3: Theme discovery</h3>
+<pre><code>System:
+1. Embeds all interview responses
+2. Clusters similar responses
+3. Uses LLM to label each cluster
+4. Identifies common themes</code></pre>
+<hr>
+</section>
+</section>
+<section id="limitations-and-considerations" class="level2">
+<h2 class="anchored" data-anchor-id="limitations-and-considerations">Limitations and considerations</h2>
+<section id="technical-limitations" class="level3">
+<h3 class="anchored" data-anchor-id="technical-limitations">Technical limitations</h3>
+<ul>
+<li>Embedding quality varies by domain/language</li>
+<li>Similarity search isn’t perfect</li>
+<li>Chunking decisions affect results</li>
+<li>Need to manage stale documents</li>
+</ul>
+</section>
+<section id="practical-considerations" class="level3">
+<h3 class="anchored" data-anchor-id="practical-considerations">Practical considerations</h3>
+<ul>
+<li>Setup time for initial embedding</li>
+<li>Storage for vector data</li>
+<li>Re-embedding when documents change</li>
+<li>API costs for embeddings</li>
+</ul>
+</section>
+<section id="when-rag-isnt-the-answer" class="level3">
+<h3 class="anchored" data-anchor-id="when-rag-isnt-the-answer">When RAG isn’t the answer</h3>
+<ul>
+<li>Very small document sets (just use long context)</li>
+<li>Real-time changing information (embeddings are static)</li>
+<li>Highly specialized domains (may need fine-tuning)</li>
+<li>When you need model to follow strict formats</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="whats-next" class="level2">
+<h2 class="anchored" data-anchor-id="whats-next">What’s next</h2>
+<p>Now that you understand the theory:</p>
+<p><strong>This afternoon, Session 03:</strong> - Implement qualitative coding workflow using embeddings - See clustering and theme identification in practice</p>
+<p><strong>This afternoon, Session 04:</strong> - Build an internal knowledge chatbot using RAG - Work with real project documents - Implement the full retrieval-augmentation-generation pipeline</p>
+<p>Both sessions will use the concepts from today.</p>
+<hr>
+</section>
+<section id="key-takeaways" class="level2">
+<h2 class="anchored" data-anchor-id="key-takeaways">Key takeaways</h2>
+<ol type="1">
+<li><strong>Embeddings</strong> turn text into searchable numbers that capture meaning</li>
+<li><strong>RAG</strong> connects LLMs to your specific data through search</li>
+<li><strong>Use RAG</strong> when you need LLMs to work with large, specific, or changing knowledge bases</li>
+<li><strong>The pattern</strong> is: retrieve relevant content, add to prompt, generate grounded answer</li>
+</ol>
+<hr>
+</section>
+<section id="questions-to-think-about" class="level2">
+<h2 class="anchored" data-anchor-id="questions-to-think-about">Questions to think about</h2>
+<p>Before the afternoon sessions, consider: - What documents in your work could benefit from semantic search? - What questions do people ask that require searching internal knowledge? - How would you evaluate if a RAG system is working well?</p>
+<hr>
+</section>
+<section id="resources-for-deeper-learning" class="level2">
+<h2 class="anchored" data-anchor-id="resources-for-deeper-learning">Resources for deeper learning</h2>
+<ul>
+<li>OpenAI Embeddings Guide: https://platform.openai.com/docs/guides/embeddings</li>
+<li>Understanding vector embeddings: https://www.pinecone.io/learn/vector-embeddings/</li>
+<li>RAG explained: https://www.anthropic.com/index/contextual-retrieval</li>
+<li>Chunking strategies: [add link]</li>
+</ul>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
