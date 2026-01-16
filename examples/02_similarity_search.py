@@ -16,7 +16,7 @@ def read_docs() -> list[tuple[str, str]]:
     for fp in sorted(DOCS_DIR.glob("*.md")):
         docs.append((fp.stem, fp.read_text(encoding="utf-8")))
     if not docs:
-        raise FileNotFoundError(f"No se encontraron .md en {DOCS_DIR}")
+        raise FileNotFoundError(f"No .md files found in {DOCS_DIR}")
     return docs
 
 
@@ -28,24 +28,24 @@ def main() -> None:
     for doc_id, text in docs:
         chunks.extend(chunk_text_simple(text, doc_id=doc_id, max_chars=600, overlap=80))
 
-    # 2) embeddings de chunks
+    # 2) chunk embeddings
     chunk_texts = [c.text for c in chunks]
     chunk_embs = embed_texts(chunk_texts)
 
-    # 3) embedding de la pregunta
-    question = "¿Qué aprendimos para mejorar el reclutamiento y la tasa de respuesta?"
+    # 3) question embedding
+    question = "What did we learn to improve recruitment and response rate?"
     q_emb = embed_text(question)
 
-    # 4) similitud
+    # 4) similarity
     scored = []
     for c, e in zip(chunks, chunk_embs):
         scored.append((dot_similarity(q_emb, e), c))
 
     scored.sort(key=lambda x: x[0], reverse=True)
 
-    print("\nPregunta:")
+    print("\nQuestion:")
     print(question)
-    print("\nTop chunks recuperados:\n")
+    print("\nTop retrieved chunks:\n")
 
     for rank, (score, c) in enumerate(scored[:TOP_K], start=1):
         preview = c.text.replace("\n", " ")

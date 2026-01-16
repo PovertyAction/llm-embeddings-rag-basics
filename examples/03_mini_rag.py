@@ -16,7 +16,7 @@ def read_docs() -> list[tuple[str, str]]:
     for fp in sorted(DOCS_DIR.glob("*.md")):
         docs.append((fp.stem, fp.read_text(encoding="utf-8")))
     if not docs:
-        raise FileNotFoundError(f"No se encontraron .md en {DOCS_DIR}")
+        raise FileNotFoundError(f"No .md files found in {DOCS_DIR}")
     return docs
 
 
@@ -28,12 +28,12 @@ def main() -> None:
     for doc_id, text in docs:
         chunks.extend(chunk_text_simple(text, doc_id=doc_id, max_chars=600, overlap=80))
 
-    # 2) embeddings de chunks
+    # 2) chunk embeddings
     chunk_texts = [c.text for c in chunks]
     chunk_embs = embed_texts(chunk_texts)
 
-    # 3) pregunta
-    question = "¿Qué prácticas redujeron errores de calidad de datos en campo?"
+    # 3) question
+    question = "What practices reduced data quality errors in the field?"
     q_emb = embed_text(question)
 
     # 4) retrieval top-k
@@ -44,10 +44,10 @@ def main() -> None:
 
     top_chunks = [c.text for _, c in scored[:TOP_K]]
 
-    print("\nPregunta:")
+    print("\nQuestion:")
     print(question)
 
-    print("\nContexto recuperado (top-k):\n")
+    print("\nRetrieved context (top-k):\n")
     for i, txt in enumerate(top_chunks, start=1):
         preview = txt.replace("\n", " ")
         preview = (preview[:240] + "...") if len(preview) > 240 else preview
@@ -56,7 +56,7 @@ def main() -> None:
     # 5) generation using context
     answer = answer_with_context(question, top_chunks)
 
-    print("\nRespuesta (mini-RAG):\n")
+    print("\nAnswer (mini-RAG):\n")
     print(answer)
 
 

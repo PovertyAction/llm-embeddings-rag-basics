@@ -8,9 +8,9 @@ def main() -> None:
     vec = embed_text(text, model=DEFAULT_EMBED_MODEL)
 
     print("✅ Embedding generado")
-    print(f"Modelo: {DEFAULT_EMBED_MODEL}")
-    print(f"Dimensiones: {len(vec)}")
-    print("Primeros 8 valores:")
+    print(f"Model: {DEFAULT_EMBED_MODEL}")
+    print(f"Dimensions: {len(vec)}")
+    print("First 8 values:")
     print(vec[:8])
 
 

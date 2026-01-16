@@ -1,76 +1,287 @@
 # Session 02 — Embeddings & RAG
 
-## Guided Activity
+## Session goal
+
+By the end of this session, you should be able to:
+
+- explain what an **embedding** is and what it's used for,
+- generate embeddings for texts,
+- measure similarity (cosine / dot product) and retrieve *top-k* chunks,
+- build a **mini-RAG**: *search first, then answer*.
+
+> This session is **foundational**: what you learn applies to many use cases (internal chatbots, semantic search, assisted classification, etc.).
+
+---
+
+## Key concepts
+
+### What is an embedding?
+
+An embedding is a **numerical representation** of a text's meaning.
+
+- It's a **vector** (list of numbers)
+- Lives in a **vector space**
+- Texts with similar meaning tend to be **close** in that space
+
+**Important rule:** You can only compare embeddings if they were generated with the **same model** (same space).
+
+**Example:**
+
+```
+Text: "The survey was conducted in rural villages"
+↓
+Embedding: [0.023, -0.145, 0.892, ..., 0.334]
+(1536 numbers with text-embedding-3-small)
+```
+
+Similar texts get similar vectors. Different meanings get distant vectors.
+
+---
+
+### Similarity: cosine similarity and dot product
+
+The most common comparison is **cosine similarity** (intuition: "angle between vectors").
+
+Many embedding models produce **normalized** vectors, and then:
+
+- cosine similarity simplifies to a **dot product**
+- this is efficient and scales well
+
+**In practice:**
+
+- Score close to 1 = very similar meaning
+- Score close to 0 = unrelated
+- Score close to -1 = opposite meaning (rare)
+
+---
+
+### What is RAG?
+
+**RAG = Retrieval-Augmented Generation**
+
+Instead of asking the LLM to "know" your documents, you:
+
+1. **Retrieval**: Find relevant chunks (embeddings + search)
+2. **Augmentation**: Add those chunks to the prompt
+3. **Generation**: LLM responds using that context
+
+Useful phrase:
+> **Search first, then answer.**
+
+**Key insight:** RAG is not fine-tuning. You're not changing the model—you're changing the **context**.
+
+**Why RAG matters:**
+
+- Works with private/proprietary data
+- No need to retrain models
+- Easy to update knowledge base
+- Can cite sources
+- Cost-effective at scale
+
+---
+
+## The RAG workflow
+```
+Your documents
+↓
+Split into chunks
+↓
+Generate embeddings (one-time)
+↓
+Store embeddings
+---
+User question
+↓
+Generate question embedding
+↓
+Search similar chunks (retrieval)
+↓
+Build prompt with chunks (augmentation)
+↓
+LLM generates answer (generation)
+```
+
+---
+
+## Guided activity
 
 ### Preparation
 Make sure you have:
 
-- active environment (`.venv`),
-- `.env` with `OPENAI_API_KEY`,
-- the repo open in VS Code.
+- active environment (`.venv`)
+- `.env` with `OPENAI_API_KEY`
+- the repo open in VS Code
 
+---
 
 ### Step A — Generate embeddings (10 min)
+
 Run:
 ```bash
 python examples/01_generate_embeddings.py
 ```
 
-What you should see:
-- print of the vector size,
-- preview of the first values,
-- confirmation that the API works for embeddings.
+**What you should see:**
 
+- Print of the vector size (e.g., 1536 dimensions)
+- Preview of the first values
+- Confirmation that the API works for embeddings
+
+**What's happening:**
+
+- Your text is being sent to OpenAI's embedding API
+- The API returns a vector representation
+- This vector captures the semantic meaning of your text
+
+**Key observation:** Notice how different texts produce different vectors, but the vector length is always the same (1536 for `text-embedding-3-small`).
+
+---
 
 ### Step B — Simple semantic search (15 min)
+
 Run:
 ```bash
 python examples/02_similarity_search.py
 ```
 
-This script:
-1) reads several short documents,
-2) splits them into chunks (simple chunking),
-3) generates embeddings per chunk,
-4) generates embedding of a question,
-5) calculates similarities and shows the top-k.
+**This script:**
 
-What to observe:
-- the retrieved chunks should "make sense" with your question,
-- the top-1 and top-3 should be reasonable.
+1. Reads several short documents
+2. Splits them into chunks (simple chunking)
+3. Generates embeddings per chunk
+4. Generates embedding of a question
+5. Calculates similarities and shows the top-k
 
+**What to observe:**
+
+- The retrieved chunks should "make sense" with your question
+- The top-1 and top-3 should be reasonable
+- Notice the similarity scores (higher = more relevant)
+
+**What's happening:**
+
+- Each chunk gets converted to a vector
+- Your question also becomes a vector
+- We calculate how close each chunk vector is to the question vector
+- We rank by similarity and return the top matches
+
+**Key insight:** This is semantic search—we're finding meaning matches, not keyword matches.
+
+---
 
 ### Step C — Mini-RAG (10–15 min)
+
 Run:
 ```bash
 python examples/03_mini_rag.py
 ```
 
-This script does the same as Step B, but additionally:
-- builds a prompt that includes the retrieved chunks,
-- asks the LLM to respond using **only that context**,
-- prints the response.
+**This script does the same as Step B, but additionally:**
 
-What to observe:
-- the response should reference the retrieved content,
-- if the question is not covered by the context, the model should say so (according to the instruction).
+- Builds a prompt that includes the retrieved chunks
+- Asks the LLM to respond using **only that context**
+- Prints the response
+
+**What to observe:**
+
+- The response should reference the retrieved content
+- If the question is not covered by the context, the model should say so (according to the instruction)
+- Compare the answer to the chunks that were retrieved
+
+**What's happening:**
+
+```
+1. User asks: "What sampling method was used?"
+2. System retrieves relevant chunks about sampling
+3. System builds prompt: "Based on these documents: [chunks], answer: [question]"
+4. LLM generates answer grounded in those chunks
+```
+
+**Key insight:** The LLM doesn't "know" your documents—you're giving it the relevant parts at query time.
 
 ---
 
-## 3) Quick exercises (if time allows)
+## Mental model: RAG vs. other approaches
 
-1) Change `TOP_K` from 3 to 5 and compare results.
-2) Change the chunking (e.g. by paragraphs vs. fixed size) and see how the top-k changes.
-3) Write a "difficult" question (little evidence in the docs) and observe how the mini-RAG behaves.
+| Approach | When to use | Pros | Cons |
+|----------|-------------|------|------|
+| **Simple LLM call** | General tasks, no specific knowledge needed | Simple, fast | Can't access your data |
+| **Long context** | Small, static knowledge base | No retrieval needed | Expensive, may miss details |
+| **RAG** | Large, changing knowledge base | Efficient, scalable, citable | Requires embedding setup |
+| **Fine-tuning** | Need model to "speak" your domain | Model learns style/domain | Expensive, hard to update |
+
+**For most research use cases → RAG**
 
 ---
 
-## 4) Bridge to the next sessions
+## Quick exercises (extra)
 
-What comes next is usually:
-- more robust chunking (tokens, overlap),
-- storing embeddings (files / vector DB),
-- traceability (citations, chunk IDs),
-- evaluation: are we retrieving the right thing? does the response use the context?
+1. **Change retrieval depth:** Modify `TOP_K` from 3 to 5 and compare results. Does more context help?
 
-This repository already leaves you with the technical core to move forward.
+2. **Experiment with chunking:** Change the chunking strategy (e.g., by paragraphs vs. fixed size) and see how the top-k changes.
+
+3. **Test edge cases:** Write a "difficult" question (little evidence in the docs) and observe how the mini-RAG behaves. Does it hallucinate or admit it doesn't know?
+
+4. **Compare with keywords:** Try to find the same information using keyword search (Ctrl+F). Notice the difference with semantic search.
+
+---
+
+## Common issues and solutions
+
+**"Embeddings are all similar (scores close to 1)"**
+→ Your documents might be too similar, or chunks too small. Try more diverse content.
+
+**"Top results don't make sense"**
+→ Check your chunking strategy. Are chunks preserving semantic coherence?
+
+**"LLM ignores the context"**
+→ Make your prompt instruction clearer: "Answer ONLY using the provided context."
+
+**"Too slow"**
+→ Embeddings are generated once and stored. Only query embedding happens in real-time.
+
+---
+
+## What you've learned
+
+✅ Embeddings convert text to searchable vectors
+✅ Similarity search finds semantically related content
+✅ RAG pattern: retrieve → augment → generate
+✅ This works without fine-tuning or retraining models
+
+---
+
+## Bridge to next sessions
+
+What comes next:
+- **Session 03** (this afternoon): Apply this to qualitative coding workflows
+- **Session 04** (this afternoon): Build a full knowledge chatbot with your internal documents
+
+Future considerations:
+- More robust chunking (tokens, overlap)
+- Storing embeddings efficiently (files / vector DB)
+- Traceability (citations, chunk IDs)
+- Evaluation: Are we retrieving the right content? Does the response use the context correctly?
+
+This session gives you the technical foundation to build these applications.
+
+---
+
+## Key takeaways
+
+1. **Embeddings = semantic search**: Find by meaning, not keywords
+2. **RAG = grounded generation**: LLM uses YOUR data, not just training knowledge
+3. **Pattern is reusable**: Same approach works for many research applications
+4. **No model training needed**: This is prompt engineering + smart retrieval
+
+---
+
+## Resources
+
+- OpenAI Embeddings Guide: https://platform.openai.com/docs/guides/embeddings
+- Understanding cosine similarity: https://www.pinecone.io/learn/vector-similarity/
+- RAG best practices: https://www.anthropic.com/index/contextual-retrieval
+
+---
+
+**Ready for more?** Move on to Session 03 this afternoon to see embeddings in action for qualitative research.
