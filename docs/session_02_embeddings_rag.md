@@ -27,7 +27,7 @@ An embedding is a **numerical representation** of a text's meaning.
 
 **Example:**
 
-```
+```text
 Text: "The survey was conducted in rural villages"
 ↓
 Embedding: [0.023, -0.145, 0.892, ..., 0.334]
@@ -57,7 +57,7 @@ Many embedding models produce **normalized** vectors, and then:
 
 ### What is RAG?
 
-**RAG = Retrieval-Augmented Generation**
+RAG = Retrieval-Augmented Generation
 
 Instead of asking the LLM to "know" your documents, you:
 
@@ -81,7 +81,8 @@ Useful phrase:
 ---
 
 ## The RAG workflow
-```
+
+```text
 Your documents
 ↓
 Split into chunks
@@ -106,6 +107,7 @@ LLM generates answer (generation)
 ## Guided activity
 
 ### Preparation
+
 Make sure you have:
 
 - active environment (`.venv`)
@@ -117,6 +119,7 @@ Make sure you have:
 ### Step A — Generate embeddings (10 min)
 
 Run:
+
 ```bash
 python examples/01_generate_embeddings.py
 ```
@@ -140,6 +143,7 @@ python examples/01_generate_embeddings.py
 ### Step B — Simple semantic search (15 min)
 
 Run:
+
 ```bash
 python examples/02_similarity_search.py
 ```
@@ -172,6 +176,7 @@ python examples/02_similarity_search.py
 ### Step C — Mini-RAG (10–15 min)
 
 Run:
+
 ```bash
 python examples/03_mini_rag.py
 ```
@@ -190,7 +195,7 @@ python examples/03_mini_rag.py
 
 **What's happening:**
 
-```
+```text
 1. User asks: "What sampling method was used?"
 2. System retrieves relevant chunks about sampling
 3. System builds prompt: "Based on these documents: [chunks], answer: [question]"
@@ -210,7 +215,7 @@ python examples/03_mini_rag.py
 | **RAG** | Large, changing knowledge base | Efficient, scalable, citable | Requires embedding setup |
 | **Fine-tuning** | Need model to "speak" your domain | Model learns style/domain | Expensive, hard to update |
 
-**For most research use cases → RAG**
+For most research use cases → RAG
 
 ---
 
@@ -223,6 +228,45 @@ python examples/03_mini_rag.py
 3. **Test edge cases:** Write a "difficult" question (little evidence in the docs) and observe how the mini-RAG behaves. Does it hallucinate or admit it doesn't know?
 
 4. **Compare with keywords:** Try to find the same information using keyword search (Ctrl+F). Notice the difference with semantic search.
+
+---
+
+## Final activity — Build your own mini-RAG
+
+Now that you've seen how the mini-RAG example works, it's time to build your own!
+
+### Instructions
+
+**Goal:** Create a mini-RAG system to answer questions about procurement procedures.
+
+**Dataset:** Use the file located at `data/exercise/How to Create a Procurement Request.md`
+
+**Your task:**
+
+1. **Read and chunk** the procurement document
+2. **Generate embeddings** for each chunk
+3. **Implement the RAG workflow**:
+4.
+   - Accept user questions
+   - Retrieve relevant chunks using similarity search
+   - Build a prompt with the context
+   - Generate answers using the LLM
+
+5. **Test with questions** like:
+6.
+   - "What is the minimum advance time required for the delivery date according to the procurement request level in IPA's ProcessMaker system, and what happens if a user has not visited ProcessMaker recently?"
+   - "If an IPA user does not find the Grant Allocation Code they need when creating a procurement request in ProcessMaker, who should they contact and what is the list of available codes based on?"
+
+**Starting point:** Use `examples/03_mini_rag.py` as your reference code and adapt it to work with the procurement document.
+
+**You can:**
+
+- Use Claude or GitHub Copilot Chat to help you write the code
+- Ask questions about the implementation
+- Experiment with different chunking strategies
+- Adjust the number of retrieved chunks (`TOP_K`)
+
+**Expected outcome:** A working script that can answer procurement-related questions based on the document content.
 
 ---
 
@@ -254,10 +298,12 @@ python examples/03_mini_rag.py
 ## Bridge to next sessions
 
 What comes next:
+
 - **Session 03** (this afternoon): Apply this to qualitative coding workflows
 - **Session 04** (this afternoon): Build a full knowledge chatbot with your internal documents
 
 Future considerations:
+
 - More robust chunking (tokens, overlap)
 - Storing embeddings efficiently (files / vector DB)
 - Traceability (citations, chunk IDs)
@@ -274,13 +320,13 @@ This session gives you the technical foundation to build these applications.
 3. **Pattern is reusable**: Same approach works for many research applications
 4. **No model training needed**: This is prompt engineering + smart retrieval
 
-----
+---
 
 ## Resources
 
-- OpenAI Embeddings Guide: https://platform.openai.com/docs/guides/embeddings
-- Understanding cosine similarity: https://www.pinecone.io/learn/vector-similarity/
-- RAG best practices: https://www.anthropic.com/index/contextual-retrieval
+- OpenAI Embeddings Guide: <https://platform.openai.com/docs/guides/embeddings>
+- Understanding cosine similarity: <https://www.pinecone.io/learn/vector-similarity/>
+- RAG best practices: <https://www.anthropic.com/index/contextual-retrieval>
 
 ---
 
