@@ -28,7 +28,7 @@ def answer_with_context(
 
     # Set provider-specific default models
     if model is None:
-        model = "gpt-4o-mini" if provider == "openai" else "claude-3-5-sonnet-20241022"
+        model = "gpt-4o-mini" if provider == "openai" else "claude-haiku-4-5"
 
     context = "\n\n---\n\n".join(context_chunks)
 

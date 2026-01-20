@@ -6,7 +6,7 @@ from collections.abc import Iterable
 from dotenv import load_dotenv
 from openai import OpenAI
 
-DEFAULT_EMBED_MODEL = "text-embedding-3-large"
+DEFAULT_EMBED_MODEL = "text-embedding-3-small"
 
 
 def _get_embedding_client() -> OpenAI:

@@ -111,7 +111,10 @@ LLM generates answer (generation)
 Make sure you have:
 
 - active environment (`.venv`)
-- `.env` with `OPENAI_API_KEY`
+- `.env` with either `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` (or both)
+  - If you have both keys, the system defaults to Anthropic (Claude)
+  - You can explicitly set `LLM_PROVIDER=openai` or `LLM_PROVIDER=anthropic` in `.env` to choose
+  - Note: Embeddings always use OpenAI's `text-embedding-3-small` model regardless of LLM provider
 - the repo open in VS Code
 
 ---
@@ -126,7 +129,9 @@ python examples/01_generate_embeddings.py
 
 **What you should see:**
 
-- Print of the vector size (e.g., 1536 dimensions)
+- Display of which LLM provider is being used (OpenAI or Anthropic)
+- Confirmation that embeddings use OpenAI's model
+- Print of the vector size (1536 dimensions for `text-embedding-3-small`)
 - Preview of the first values
 - Confirmation that the API works for embeddings
 
@@ -150,11 +155,12 @@ python examples/02_similarity_search.py
 
 **This script:**
 
-1. Reads several short documents
-2. Splits them into chunks (simple chunking)
-3. Generates embeddings per chunk
-4. Generates embedding of a question
-5. Calculates similarities and shows the top-k
+1. Shows which LLM provider is configured (OpenAI or Anthropic)
+2. Reads several short documents
+3. Splits them into chunks (simple chunking)
+4. Generates embeddings per chunk
+5. Generates embedding of a question
+6. Calculates similarities and shows the top-k
 
 **What to observe:**
 
@@ -185,13 +191,16 @@ python examples/03_mini_rag.py
 
 - Builds a prompt that includes the retrieved chunks
 - Asks the LLM to respond using **only that context**
+- Uses your configured LLM provider (OpenAI or Anthropic/Claude) for generation
 - Prints the response
 
 **What to observe:**
 
+- Which LLM provider is being used for generation
 - The response should reference the retrieved content
 - If the question is not covered by the context, the model should say so (according to the instruction)
 - Compare the answer to the chunks that were retrieved
+- Notice that embeddings always use OpenAI, but the LLM generation can use either provider
 
 **What's happening:**
 
@@ -209,7 +218,7 @@ python examples/03_mini_rag.py
 ## Mental model: RAG vs. other approaches
 
 | Approach | When to use | Pros | Cons |
-|----------|-------------|------|------|
+| ---------- | ------------- | ------ | ------ |
 | **Simple LLM call** | General tasks, no specific knowledge needed | Simple, fast | Can't access your data |
 | **Long context** | Small, static knowledge base | No retrieval needed | Expensive, may miss details |
 | **RAG** | Large, changing knowledge base | Efficient, scalable, citable | Requires embedding setup |
@@ -325,6 +334,7 @@ This session gives you the technical foundation to build these applications.
 ## Resources
 
 - OpenAI Embeddings Guide: <https://platform.openai.com/docs/guides/embeddings>
+- Anthropic Claude API: <https://docs.anthropic.com/en/api/getting-started>
 - Understanding cosine similarity: <https://www.pinecone.io/learn/vector-similarity/>
 - RAG best practices: <https://www.anthropic.com/index/contextual-retrieval>
 
