@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 from src.chunking import chunk_text_simple
-from src.embeddings import embed_texts, embed_text
+from src.embeddings import embed_text, embed_texts
+from src.llm_client import get_provider
 from src.similarity import dot_similarity
 
 TOP_K = 3
@@ -12,6 +12,7 @@ DOCS_DIR = Path("data/sample_docs")
 
 
 def read_docs() -> list[tuple[str, str]]:
+    """Read all markdown documents from the sample docs directory."""
     docs = []
     for fp in sorted(DOCS_DIR.glob("*.md")):
         docs.append((fp.stem, fp.read_text(encoding="utf-8")))
@@ -21,6 +22,10 @@ def read_docs() -> list[tuple[str, str]]:
 
 
 def main() -> None:
+    """Demonstrate semantic similarity search with embeddings."""
+    provider = get_provider()
+    print(f"Using LLM provider: {provider}\n")
+
     docs = read_docs()
 
     # 1) chunking

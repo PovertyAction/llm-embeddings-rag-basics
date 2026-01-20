@@ -5,13 +5,24 @@ from dataclasses import dataclass
 
 @dataclass
 class Chunk:
+    """Represents a chunk of text from a document.
+
+    Attributes:
+        doc_id: Identifier of the source document
+        chunk_id: Sequential identifier for this chunk within the document
+        text: The text content of the chunk
+
+    """
+
     doc_id: str
     chunk_id: int
     text: str
 
 
-def chunk_text_simple(text: str, doc_id: str, max_chars: int = 700, overlap: int = 100) -> list[Chunk]:
-    """Simple character-based chunking.
+def chunk_text_simple(
+    text: str, doc_id: str, max_chars: int = 700, overlap: int = 100
+) -> list[Chunk]:
+    """Chunk text using simple character-based chunking.
 
     - max_chars: chunk size in characters
     - overlap: overlap between consecutive chunks
