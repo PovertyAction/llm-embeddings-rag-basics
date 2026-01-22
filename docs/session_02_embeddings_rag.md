@@ -106,6 +106,30 @@ LLM generates answer (generation)
 
 ## Guided activity
 
+### Step 0 — Create and activate the environment (5 min)
+
+Python relies heavily on external packages.
+Even basic tasks often require importing libraries.
+
+**In this project:**
+
+- package versions are defined in the project configuration,
+- a virtual environment isolates those packages from other projects.
+
+**Run this command:**
+
+If this is your first time setting up the project, run:
+
+```bash
+just get-started
+```
+
+If you've already set up the project before, just run:
+
+```bash
+just venv
+```
+
 ### Preparation
 
 Make sure you have:
@@ -297,10 +321,10 @@ Now that you've seen how the mini-RAG example works, it's time to build your own
 
 ## What you've learned
 
-✅ Embeddings convert text to searchable vectors
-✅ Similarity search finds semantically related content
-✅ RAG pattern: retrieve → augment → generate
-✅ This works without fine-tuning or retraining models
+- ✅ Embeddings convert text to searchable vectors
+- ✅ Similarity search finds semantically related content
+- ✅ RAG pattern: retrieve → augment → generate
+- ✅ This works without fine-tuning or retraining models
 
 ---
 
